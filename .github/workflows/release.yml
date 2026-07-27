@@ -10,20 +10,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        targets: [
-          { os: ubuntu-latest, type: linux },
-          { os: macos-14,      type: macos },
-          { os: macos-26,      type: macstore },
-          { os: windows-2022,  type: windows },
-          { os: windows-2022,  type: windows-arm },
-          { os: macos-26,      type: ios },
-          { os: windows-2022,  type: android }
-        ]
+        targets: [{ os: windows-2022, type: windows }]
     name: Gyroflow for ${{ matrix.targets.type }}
     runs-on: ${{ matrix.targets.os }}
     env:
-      BUILD_APP_STORE_BUNDLE: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
-      IS_MANUAL_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
+      BUILD_APP_STORE_BUNDLE: false
+      IS_MANUAL_DISPATCH: false
     steps:
       - uses: actions/checkout@v4
       - name: Install Rust
@@ -86,7 +78,7 @@ jobs:
           api-private-key: ${{ secrets.MACOS_ITCONNECT_KEY }}
 
       - name: Save keystore to file
-        if: ${{ matrix.targets.os == 'windows-2022' }}
+        if: ${{ false }}
         run: |
           echo "${{ secrets.ANDROID_RELEASE_KEYSTORE }}" > ${{ github.workspace }}/android_release.keystore.b64
           echo "${{ secrets.MS_STORE_SIGNING_KEY }}" > ${{ github.workspace }}/_deployment/windows/msix_signing_key.pfx.b64
@@ -184,6 +176,7 @@ jobs:
   github_release:
     name: Create GitHub release
     needs: build
+    if: ${{ false }}
     runs-on: macos-15
     steps:
       - name: Download artifacts
